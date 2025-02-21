@@ -1,3 +1,10 @@
 from django.contrib import admin
+from chat.models import Satellite
 
-# Register your models here.
+class SatelliteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'orbital_state', 'designation',
+					'orbit', 'created_at',)
+    search_fields = ('name',)
+
+
+admin.site.register(Satellite, SatelliteAdmin)

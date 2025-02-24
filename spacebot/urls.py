@@ -21,5 +21,7 @@ from chat import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('chat', views.chat),
-    path('db', views.load_database)
+    path('db', views.load_database),
+    path('rag', views.build_rag)
 ]
+

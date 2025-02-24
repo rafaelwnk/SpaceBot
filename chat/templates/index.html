@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpaceBot</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <style>
         body,
         html {
@@ -111,13 +112,55 @@
 <body>
     <div class="stars"></div>
     <div class="chat-container">
-        <div class="chat-messages">
+        <div class="chat-messages" id="chatMessages">
         </div>
         <div class="chat-input">
-            <input type="text" placeholder="Escreva sua mensagem...">
-            <button>Enviar</button>
+            <input type="text" id="userMessage" placeholder="Escreva sua mensagem...">
+            <button onclick="sendMessage()">Enviar</button>
         </div>
     </div>
+
+    <script>
+        async function sendMessage() {
+            const userMessage = document.getElementById("userMessage").value;
+            if (!userMessage.trim()) return;
+
+            appendMessage(userMessage, "user");
+
+            document.getElementById("userMessage").value = "";
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify({ message: userMessage }),
+            });
+
+            const data = await response.json();
+
+            appendMessage(data.response, "bot");
+
+            updateMessageHistory(data.history);
+        }
+
+        function appendMessage(message, role) {
+            const messageContainer = document.createElement("div");
+            messageContainer.classList.add("message", `${role}-message`);
+            messageContainer.textContent = message;
+            document.getElementById("chatMessages").appendChild(messageContainer);
+            messageContainer.scrollIntoView({ behavior: "smooth" });
+        }
+        function updateMessageHistory(history) {
+            document.getElementById("chatMessages").innerHTML = "";
+            history.forEach(item => {
+                appendMessage(item.message, item.role);
+            });
+        }
+    </script>
 </body>
 
 </html>

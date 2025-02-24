@@ -28,14 +28,14 @@ class AIBot:
             embedding_function=embedding,
         )
         return vector_store.as_retriever(
-            search_kwargs={'k': 30},
+            search_kwargs={'k': 150},
         )
 
     def __build_messages(self, history_messages, question):
         messages = []
         for message in history_messages:
-            message_class = HumanMessage if message.get('fromMe') else AIMessage
-            messages.append(message_class(content=message.get('body')))
+            message_class = HumanMessage if message['role'] == 'user' else AIMessage
+            messages.append(message_class(content=message['message']))
         messages.append(HumanMessage(content=question))
         return messages
 
